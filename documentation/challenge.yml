@@ -1,0 +1,226 @@
+openapi: 3.0.0
+info:
+  title: Challenge API
+  version: v1
+paths:
+  /operation:
+    post:
+      summary: Returns result of operation.
+      requestBody:
+        description: Necessary body to request the operation.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Operation'
+      responses:
+        '200':
+          description: Returns the result of the multiplication between an external factor and the addtition of two parameters.
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/result'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+
+
+
+  /history:
+    get:
+      summary: Returns the page with the requests that are in that {page}.
+      parameters:
+        - in: query
+          name: page
+          required: False
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: size
+          required: False
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Returns the last X requests' with its information. Its page and size will be the given in the parameters.
+          content:
+            text/plain:
+              schema:
+                $ref:
+                  '#/components/schemas/history'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+
+
+components:
+  responses:
+
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+          example:
+            code: 400
+            message: Bad Request
+            level: Error
+            description: Parameters cannot be null
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+          example:
+            code: 401
+            message: Unauthorized
+            level: Error
+            description: Must provide a valid token.
+            
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+          example:
+            code: 500
+            message: Internal Server Error
+            level: Error
+            description: An unexpected error ocurred on the server.
+
+    TooManyRequests:
+      description: Too Many Requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+          example:
+            code: 429
+            message: Too Many Requests
+            level: Error
+            description: You're doing that too often! Try again later.
+          
+    ServiceUnavailable:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+          example:
+            code: 503
+            message: Service Unavailable
+            level: Error
+            description: The server is currently unable to handle the request.
+
+    GatewayTimeout:
+      description: Gateway Timeout
+      content: 
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+          example:
+            code: 504
+            message: Gateway Timeout
+            level: Error
+            description: The server timed out while waiting for a response from a gateway or proxy.
+
+
+
+
+
+  schemas:
+    Operation:
+      title: Operation
+      type: object
+      properties:
+        num1:
+          type: integer
+          example: 4
+        num2:
+          type: integer
+          example: 6
+    result:
+      title: Result
+      type: object
+      properties:
+        result:
+          type: integer
+          example: 12
+        factor:
+          type: integer
+          example: 2
+    history:
+      title: History
+      type: array
+      items: 
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1234
+          date:
+            type: string
+            example: 27-01-2025
+          endpoint:
+            type: string
+            example: /operation
+          json:
+            type: object
+            example: {"num1":4,"num2":6}
+          responses:
+            type: string
+            example: 200
+
+
+    error:
+      type: object
+      description: Structure containing the error details
+      properties:
+        code:
+          type: string
+          description: Unique numeric error code
+          example: 400
+        message:
+          type: string
+          description: Brief summary of the given issue
+          example: Bad Request
+        level:
+          type: string
+          description: Level of the given issue
+          enum:
+            - info
+            - warning
+            - error
+          example: Error
+        description:
+          type: string
+          description: Detailed description of the given issue
+          example: num1 cannot be null
+
+    
+      
+
