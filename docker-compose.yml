@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+
+  springboot_app:
+    image: maticvc/challenge:v1
+    depends_on:
+      - postgres_db
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db/ChallengeDB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: mypassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PASSWORD: 1234
+      SPRING_REDIS_PORT: 6379
+    ports:
+      - "8080:8080"
+
+
+  postgres_db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: ChallengeDB
+    ports:
+      - "5666:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
